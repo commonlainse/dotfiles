@@ -1,0 +1,2 @@
+- Made for Linux Mint 22
+- Features a "declarative" package manager in install.sh

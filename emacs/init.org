@@ -1,0 +1,769 @@
+#+title: My Emacs configuration and usage
+#+auto_tangle: t
+#+todo: fixperformance(p) wanted(w) | done(d)
+
+This file doesn't just provide an Emacs configuration but also the way I use Emacs.
+
+#+begin_src emacs-lisp :tangle init.el
+  (setq windows? (eql system-type 'windows-nt))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init.el
+  (defun init ()
+    "Opens init file."
+    (interactive)
+    (find-file "~/.emacs.d/init.org")
+    (message "Opened init file"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle init.el
+  (defun add-to-prog-hooks (fn)
+    (add-hook 'prog-mode-hook fn)
+    (add-hook 'lisp-mode-hook fn)
+    (add-hook 'fennel-mode-hook fn))
+#+end_src
+
+* My usage for Emacs
+
+** For writing
+I use org-mode for writing following these rules
+- One sentence per line ::
+  In Org-mode, newlines are ignored, which allows doing that.
+  It's extremely useful and I cannot see myself living without it
+- Tag scenes ::
+  With the character name, plotline, etc
+- Organize story using headlines tagged :ignore: ::
+  This is useful for extremely obvious reasons
+- Heavy use of org-capture or org-add-note ::
+  Org-capture doesn't just work as a way to save time, but also as some sort of way self-documenting stories
+- Write now, refile later ::
+  With org-mode's refiling feature you can write down something quickly and refile it.
+- Write now, don't stop, fix with keywords ::
+  Org-mode has keywords.
+  Any unfinished draft could be categorized as an idea, a draft or as unfinished.
+  Here are some ideas for keywords:
+  - TODO(t) :: Task left to do
+  - PROJ(p) :: Project. Headline that contains other tasks inside
+  - NEXT(n) :: Task that is in progress
+  - WAIT(w) :: Something external is holding the task
+  - HOLD(h) :: I am holding the task
+  - OPEN(o) :: Open or ongoing loop
+  - REVIEW(r) :: Scene left to review
+  - IDEA(i) :: Potentially good idea
+  - GOAL(g) :: A goal you want to achieve
+  - QUESTION(q) :: Something you wish to be answered
+  - LEARNED(l) :: Something learrned while writing and needs to be properly noted
+  - THEORY(y) :: A theory on how to make something work before properly researching it
+  - DONE(d) :: Task completed
+  - USED(u) :: Scene looks like it's gonna be used in the final result
+  - KILL(k) :: Task cancelled or not applicable anymore
+  - NOTED(!) :: Important advice that got noted
+- Well structured document ::
+  To give some ideas:
+  - Charaters ::
+    List of characters.
+    Not very detailed descriptions as they should flow out naturally.
+  - Style ::
+    Some certain typogrophical choices used for this document
+  - Ideas ::
+    Ideas or drafts
+  - Inbox ::
+    Stuff left to be refiled or be integrated with the rest of the story
+  - Scenes ::
+    List of scenes.
+    Should be tagged with characters or plotline.
+- Make use of Text-to-Speech ::
+  To make sure something sounds natural.
+  =M-x read-aloud-this= can be used for this purpose.
+- Write a lot of drafts and expunge as opposed to delete ::
+  This feature normally requires the use of something like =draft-mode= in Emacs, but you can use cua-mode's builtin =cua-toggle-global-mark= (=C-S-SPC=)
+
+*** Influences
+- [[https://discourse.doomemacs.org/t/emacs-for-writing-prose/515]]
+
+** For organization
+I organize myself in the following ways
+- Using org-mode clock-in and clock-out ::
+  Not only does it manage everything for me, it also shows a log and the amount of work I spent.
+- Using pomodoro timers and deadlines ::
+  I don't do anything unless I have a deadline.
+  Timers are also good because I am not afraid of doing something because I know that at max "it'll take 20 minutes."
+  And if I'm enjoying it I can just move the break for later.
+  It keeps me on a productive loop of "when will my break start," and when it does start I wonder "when will I work again."
+- Divide something into specific tasks ::
+  Unless something is very specific I don't know how to do it
+
+The reason I need organization it's because otherwise I don't do anything.
+* Setup
+I learned many of the tricks here thanks to [[https://github.com/progfolio/.emacs.d/blob/master/init.org][Progfolio's init.el]].
+
+** Disable certain features for faster startup :performance:
+
+*** file-name-handler-alist
+#+begin_src emacs-lisp :tangle early-init.el
+  (defvar default-file-name-handler-alist file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+#+end_src
+
+*** Garbage Collection
+#+begin_src emacs-lisp :tangle early-init.el
+  (setq gc-cons-threshold (* 50 1000 1000)
+        gc-cons-percentage 1)
+#+end_src
+
+*** Initial resizing of window
+#+begin_src emacs-lisp :tangle early-init.el
+  (setq frame-inhibit-implied-resize t)
+#+end_src
+
+*** Reset them after init.el loads
+#+begin_src emacs-lisp :tangle early-init.el
+  (defun my/restart-gc ()
+    (run-with-idle-timer
+     1 nil
+     (lambda ()
+       (setq file-name-handler-alist default-file-name-handler-alist
+             gc-cons-percentage 0.1
+             gc-cons-threshold 100000000))))
+
+  (with-eval-after-load 'elpaca
+    (add-hook 'elpaca-after-init-hook 'my/restart-gc))
+#+end_src
+
+** Setup Elpaca. A faster package manager :performance:
+Elpaca is a much better package manager.
+It's async (which means it's faster) and has more functionality (such as =elpaca-try=).
+
+*** Disable Emacs package manager
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (setq package-enable-at-startup nil)
+#+END_SRC
+
+*** Install Elpaca :newpkg:fix:startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (defvar elpaca-installer-version 0.9)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1 :inherit ignore
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (< emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+#+end_src
+
+*** Elpaca fix for windows :fix:forwindows:
+#+begin_src emacs-lisp :tangle init.el
+  (when windows?
+    (elpaca-no-symlink-mode))
+#+end_src
+
+** Disable toolbar, scrollbars and menubar :minor:keybinds:
+I don't use Emacs' toolbar nor scrollbars.
+I do use menu bar, but it can be activated pressing <F10>.
+It must be disabled on =early-init.el= or otherwise it slows down Emacs' startup time.
+
+Obtained from [[https://github.com/progfolio/.emacs.d?tab=readme-ov-file#ui]].
+
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (push '(tool-bar-lines . 0) default-frame-alist)
+  (push '(vertical-scroll-bars) default-frame-alist)
+  (push '(menu-bar-lines . 0) default-frame-alist)
+  (global-set-key (kbd "<f10>") 'tmm-menubar)
+#+END_SRC
+** Change Emacs' file system :organization:newpkg:
+Default Emacs' file system is a mess.
+Packages insert configurations and cache stuff everywhere.
+
+=no-littering= is an Emacs packages that provides a consistent way for other packages to store files.
+In a way that doesn't clutter the home folder or other unwanted directories.
+Naturally, because of this, =no-littering= has to be one of the first packages to load.
+
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca no-littering
+    (require 'no-littering)
+    ;; For backups
+    (no-littering-theme-backups))
+#+end_src
+
+*** Set a place to save results from customize.el
+Depends on =no-littering='s =no-littering-expand-etc-file-name=
+
+#+begin_src emacs-lisp :tangle init.el
+  (with-eval-after-load 'no-littering
+    (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+    (when (file-exists-p custom-file)
+      (load-file custom-file)))
+#+end_src
+
+** Remove org-mode's bloat :org:performance:
+=org-modules= is a list which contains modules that =org= will =require= when it loads.
+That slow downs performance and I don't really need any of the extra functionality that comes by default with =org-modules=.
+
+#+begin_src emacs-lisp :tangle init.el
+  (setq org-modules '())
+#+end_src
+
+** Use =*scratch*= as startup buffer :minor:
+#+begin_src emacs-lisp :tangle init.el
+  (setq inhibit-startup-screen t)
+#+end_src
+
+** Use UTF-8 by default :forwindows:
+#+begin_src emacs-lisp :tangle init.el
+  (set-default-coding-systems 'utf-8-unix)
+  (set-language-environment 'utf-8)
+  (set-selection-coding-system 'utf-8-unix)
+  (set-keyboard-coding-system 'utf-8-unix)
+  (set-terminal-coding-system 'utf-8-unix)
+#+end_src
+
+** Change Emacs' font :minor:eyecandy:
+Make Emacs' not resize the frame when I later change the font.
+Speeds up startup.
+
+#+begin_src emacs-lisp :tangle init.el
+  (setq frame-inhibit-implied-resize t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle init.el
+  (push '(font . "Noto Mono") default-frame-alist)
+  (set-face-font 'default "Noto Mono")
+  (set-fontset-font t nil (font-spec :family "Noto Sans"))
+#+end_src
+
+* Organization and task-management :organization:
+
+** Pomodoro timer :newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca pomm)
+#+end_src
+
+*** Support for org's clock-in and clock-out
+#+begin_src emacs-lisp :tangle init.el
+  (add-hook 'pomm-on-status-changed-hook #'pomm--sync-org-clock)
+  (add-hook 'pomm-third-time-on-status-changed-hook
+            #'pomm-third-time--sync-org-clock)
+#+end_src
+** Annotate Emacs buffers :newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca annotate)
+#+end_src
+
+** Org as an invisible hierarchical annotator :org:newpkg:
+Exporting any headline tagged with =:ignore:= will not export the headline itself but only the contents.
+Useful as it makes Org's headlines a viable tool for organizing stories.
+
+Taken from [[https://emacs.stackexchange.com/a/17677]].
+
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca org-contrib
+    (with-eval-after-load 'ox
+      (require 'ox-extra)
+      (ox-extras-activate '(ignore-headlines))))
+#+end_src
+
+** Flashcards for org-mode :org:newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca org-drill)
+#+end_src
+
+** Convenient note-taking and file system with deft :org:newpkg:keybinds:
+Deft in my case is the best note-taker for Emacs because
+- It works well with Syncthing :: it doesn't depend on any databases.
+- Notes can be edited on mobile :: no complicated ID scheme.
+  
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca deft
+    (global-set-key [f8] 'deft))
+#+end_src
+
+** fixperformance Organize Emacs' popup windows :windows:newpkg:startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca popper
+    (setq popper-reference-buffers
+          '("\\*Messages\\*"
+            "Output\\*$"
+            "\\*Async Shell Command\\*"
+            "\\*Warnings\\*"
+            "\\*Backtrace\\*"
+            help-mode
+            compilation-mode))
+    (global-set-key (kbd "C-+") 'popper-toggle)  
+    (global-set-key (kbd "M-+") 'popper-cycle)
+    (global-set-key (kbd "C-M-+") 'popper-toggle-type)
+    (popper-mode +1)
+
+    ;; For echo-area hints
+    ;; Shouldn't be required at startp
+    (require 'popper-echo)
+    (popper-echo-mode +1))
+#+end_src
+
+* Familiarity from other editors
+
+** Normal C-x, C-c and C-v :keybinds:startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (cua-mode)
+#+end_src
+
+** Normal C-z, C-y :newpkg:keybinds:startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca undo-tree
+    (add-to-prog-hooks 'undo-tree-mode)
+    (add-hook 'org-mode-hook 'undo-tree-mode))
+
+  (global-set-key (kbd "C-z") (lambda ()
+                                (interactive)
+                                (if undo-tree-mode
+                                    (undo-tree-undo)
+                                  (undo))))
+
+  (global-set-key (kbd "C-y") (lambda ()
+                                (interactive)
+                                (if undo-tree-mode
+                                    (undo-tree-redo)
+                                  (undo-redo))))
+#+end_src
+
+** Shift select on org-mode :keybinds:
+#+begin_src emacs-lisp :tangle init.el
+  (setq org-support-shift-select 'always)
+#+end_src
+
+** Vertical cursor bar :minor:eyecandy:
+#+begin_src emacs-lisp :tangle init.el
+  (setq cursor-type 'bar)
+#+end_src
+
+** Highlight surrounding parentheses :newpkg:startuppkg:
+I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca highlight-parentheses
+    (setq highlight-parentheses-delay 0.01)
+    (add-to-prog-hooks 'highlight-parentheses-mode))
+#+end_src
+* Eyecandy :eyecandy:
+
+** Themes :newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca doom-themes)
+  (elpaca ef-themes)
+  (elpaca flexoki-themes)
+  (elpaca nimbus-theme)
+  (elpaca modus-themes)
+#+end_src
+
+** Prettify org-mode headings :org:newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca org-bullets		  ; Pretty org!!
+    ;; I don't like org-bullets' cycling
+    (with-eval-after-load 'org-bullets
+      (advice-add #'org-bullets-level-char
+		  :override
+		  (lambda (level)
+		    (let ((bullets '("◉" "○" "♦" "♢" "▪" "▫")))
+		      (string-to-char
+		       (nth (1- (min level (length bullets))) bullets))))))
+
+    (add-hook 'org-mode-hook #'org-bullets-mode))
+#+end_src
+
+** Prettify org-mode items, quotes and source blocks
+#+begin_src emacs-lisp :tangle init.el
+  (defun my/prettify-symbols-setup ()
+    (push '("[ ]" . "") prettify-symbols-alist)
+    (push '("[X]" . "") prettify-symbols-alist)
+    (push '("[-]" . "" ) prettify-symbols-alist)
+
+    (push '("#+BEGIN_SRC" . ?⮦) prettify-symbols-alist)
+    (push '("#+END_SRC" . ?⮤) prettify-symbols-alist)
+    (push '("#+begin_src" . ?⮦) prettify-symbols-alist)
+    (push '("#+end_src" . ?⮤) prettify-symbols-alist)
+
+    (push '("#+BEGIN_QUOTE" . ?❝) prettify-symbols-alist)
+    (push '("#+END_QUOTE" . ?❞) prettify-symbols-alist)
+    (push '("#+begin_quote" . ?❝) prettify-symbols-alist)
+    (push '("#+end_quote" . ?❞) prettify-symbols-alist)
+
+    (unless windows?
+      (prettify-symbols-mode)))
+
+  (add-hook 'org-mode-hook        #'my/prettify-symbols-setup)
+  (add-hook 'org-agenda-mode-hook #'my/prettify-symbols-setup)
+#+end_src
+
+** Indent org-mode documents :org:
+#+begin_src emacs-lisp :tangle init.el
+  (add-hook 'org-mode-hook #'org-indent-mode)
+#+end_src
+
+** Hide markup in org-mode when the point isn't over it                :org:
+#+begin_src emacs-lisp :tangle init.el
+  (setq org-hide-emphasis-markers t)
+#+end_src
+** Icons for Dired :dired:
+#+begin_src emacs-lisp :tangle init.el
+  (unless windows?
+    (elpaca all-the-icons-dired
+      (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)))
+#+end_src
+* Major extensions
+
+** TTS support for Emacs (not Emacspeak) :newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca read-aloud)
+#+end_src
+
+*** wanted Festival support
+Should be possible considering it uses spd-say (a common interface for various TTS engines)
+
+** Lossy completion of buffers, files, commands, etc :newpkg:startuppkg:
+Provide metadata for
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca marginalia
+    (marginalia-mode 1))
+#+end_src
+
+the completion framework
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca vertico
+    (vertico-mode 1))
+#+end_src
+
+*** Disable case sensitivity
+#+begin_src emacs-lisp :tangle init.el
+  (setq completion-ignore-case t)
+#+end_src
+
+*** Loose completion match :newpkg:
+=orderless= will turn =vertico= into an amazing search engine for buffers, commands and basically anything.
+
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca orderless
+    (setq completion-styles '(orderless basic)
+          completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
+*** Support for imenu, search and buffers :navigation:newpkg:keybinds:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca consult
+    (global-set-key (kbd "C-s") 'consult-line)
+    (global-set-key (kbd "C-x b") 'consult-buffer)
+    (global-set-key (kbd "C-x 4 b") 'consult-buffer-other-window)
+    (global-set-key (kbd "C-x t b") 'consult-buffer-other-tab)
+    (global-set-key (kbd "C-x r b") 'consult-bookmark)
+    (global-set-key (kbd "M-g i") 'consult-imenu)
+    (global-set-key (kbd "M-g o") 'consult-outline))
+#+end_src
+
+* Minor :minor:
+
+** Convenient structural editing in org :org:keybinds:navigation:
+#+begin_src emacs-lisp :tangle init.el
+  (setq org-insert-heading-respect-content t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle init.el
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (define-key org-mode-map (kbd "C-c C-<return>") 'org-insert-subheading)
+              (define-key org-mode-map (kbd "C-c h") 'org-toggle-heading)
+
+              (define-key org-mode-map (kbd "C-c C-u")
+                          (lambda ()
+                            (interactive)
+                            (if (org-at-heading-p)
+                                (outline-up-heading 1)
+                              (org-previous-visible-heading 1))))
+
+              (define-key org-mode-map (kbd "C-c i") 'org-toggle-item)
+              (define-key org-mode-map (kbd "C-c e") 'org-end-of-item)))
+#+end_src
+** Configure org-capture :keybinds:org:
+#+begin_src emacs-lisp :tangle init.el
+  (global-set-key (kbd "C-c c") 'org-capture)
+#+end_src
+
+#+begin_src emacs-lisp :tangle init.el
+  (setq org-capture-templates
+        '(("i" "An idea left to note or implement" entry
+           (file+headline buffer-name "Inbox")
+           "* idea %?\n:PROPERTIES:\n:CREATED: %U\n:END:")
+          ("r" "Research to be done" entry
+           (file+headline buffer-name "Inbox")
+           "* research %?\n:PROPERTIES:\n:CREATED: %U\n:END:")
+          ("y" "Theory on how to make something work before researching it" entry
+           (file+headline buffer-name "Inbox")
+           "* theory %?\n:PROPERTIES:\n:CREATED: %U\n:END:")
+          ("t" "TODO" entry
+           (file+headline buffer-name "Inbox")
+           "* todo %?\n:PROPERTIES:\n:CREATED: %U\n:END:")
+          ("g" "A goal to be accomplished" entry
+           (file+headline buffer-name "Inbox")
+           "* goal %?\n:PROPERTIES:\n:CREATED: %U\n:END:")
+          ("q" "Question left to be answered" entry
+           (file+headline buffer-name "Inbox")
+           "* question %?\n:PROPERTIES:\n:CREATED: %U\n:END:")))
+#+end_src
+
+** Convenient mark undo :keybinds:
+Removes redundant entries from the mark ring.
+Taken from here [[https://endlessparentheses.com/faster-pop-to-mark-command.html][faster pop to mark command@endlessparentheses.com]].
+
+#+begin_src emacs-lisp :tangle init.el
+  (defun modi/multi-pop-to-mark (orig-fun &rest args)
+    "Call ORIG-FUN until the cursor moves.
+  Try the repeated popping up to 10 times."
+    (let ((p (point)))
+      (dotimes (i 10)
+        (when (= p (point))
+          (apply orig-fun args)))))
+  
+  (advice-add 'pop-to-mark-command :around #'modi/multi-pop-to-mark)
+#+end_src
+
+** One sentence per line :org:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca electric-ospl
+    (add-hook 'org-mode-hook 'electric-ospl-mode))
+#+end_src
+
+** Navigate different windows conveniently with ace-window :navigation:keybinds:windows:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca ace-window
+    (global-set-key (kbd "C-¿") 'ace-window)
+
+    (defvar aw-dispatch-alist
+      '((?x aw-delete-window "Delete Window")
+        (?m aw-swap-window "Swap Windows")
+        (?M aw-move-window "Move Window")
+        (?c aw-copy-window "Copy Window")
+        (?j aw-switch-buffer-in-window "Select Buffer")
+        (?n aw-flip-window)
+        (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
+        (?c aw-split-window-fair "Split Fair Window")
+        (?v aw-split-window-vert "Split Vert Window")
+        (?b aw-split-window-horz "Split Horz Window")
+        (?o delete-other-windows "Delete Other Windows")
+        (?? aw-show-dispatch-help))
+      "List of actions for `aw-dispatch-default'."))
+#+end_src
+** Tangle org-mode files on save :org:
+For a file to be tangled automatically, it must have the keyword =#+auto_tangle: t=
+
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca org-auto-tangle
+    (add-hook 'org-mode-hook 'org-auto-tangle-mode))
+#+end_src
+** C-c C-e to open a file in an external program :dired:
+Taken from [[http://xahlee.info/emacs/emacs/emacs_dired_open_file_in_ext_apps.html]]
+
+#+begin_src emacs-lisp :tangle init.el
+  (defun xah-open-in-external-app (&optional Fname)
+    "Open the current file or dired marked files in external app.
+  When called in emacs lisp, if Fname is given, open that.
+
+  URL `http://xahlee.info/emacs/emacs/emacs_dired_open_file_in_ext_apps.html'
+  Version: 2019-11-04 2023-04-05 2023-06-26"
+    (interactive)
+    (let (xfileList xdoIt)
+      (setq xfileList
+            (if Fname
+                (list Fname)
+              (if (eq major-mode 'dired-mode)
+                  (dired-get-marked-files)
+                (list buffer-file-name))))
+      (setq xdoIt (if (<= (length xfileList) 1) t (y-or-n-p "Open more than 1 file? ")))
+      (when xdoIt
+        (cond
+         ((eq system-type 'windows-nt)
+          (let ((xoutBuf (get-buffer-create "*xah open in external app*"))
+                (xcmdlist (list "PowerShell" "-Command" "Invoke-Item" "-LiteralPath")))
+            (mapc
+             (lambda (x)
+               (message "%s" x)
+               (apply 'start-process (append (list "xah open in external app" xoutBuf) xcmdlist (list (format "'%s'" (if (string-match "'" x) (replace-match "`'" t t x) x))) nil)))
+             xfileList)
+            ;; (switch-to-buffer-other-window xoutBuf)
+            )
+          ;; old code. calling shell. also have a bug if filename contain apostrophe
+          ;; (mapc (lambda (xfpath) (shell-command (concat "PowerShell -Command \"Invoke-Item -LiteralPath\" " "'" (shell-quote-argument (expand-file-name xfpath)) "'"))) xfileList)
+          )
+         ((eq system-type 'darwin)
+          (mapc (lambda (xfpath) (shell-command (concat "open " (shell-quote-argument xfpath)))) xfileList))
+         ((eq system-type 'gnu/linux)
+          (mapc (lambda (xfpath)
+                  (call-process shell-file-name nil 0 nil
+                                shell-command-switch
+                                (format "%s %s"
+                                        "xdg-open"
+                                        (shell-quote-argument xfpath))))
+                xfileList))
+         ((eq system-type 'berkeley-unix)
+          (mapc (lambda (xfpath) (let ((process-connection-type nil)) (start-process "" nil "xdg-open" xfpath))) xfileList))))))
+
+  (global-set-key (kbd "C-c e") #'xah-open-in-external-app)
+#+end_src
+
+** Highlight sudden changes in buffer :newpkg:startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca volatile-highlights
+    (volatile-highlights-mode))
+#+end_src
+
+** Add a 'd' key to merge both variants in ediff-merge :ediff:keybinds:
+#+begin_src emacs-lisp :tangle init.el
+  (defun ediff-copy-both-to-C ()
+    (interactive)
+    (ediff-copy-diff ediff-current-difference nil 'C nil
+                     (concat
+                      (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                      (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+
+  (defun add-d-to-ediff-mode-map ()
+    (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+
+  (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+#+end_src
+** Stop ediff-merge from creating a new frame :ediff:
+#+begin_src emacs-lisp :tangle init.el
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+
+** Automatically close parentheses, quotes, etc :startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (electric-pair-mode)
+#+end_src
+
+** Convenient jump to any character visible in screen :newpkg:keybinds:navigation:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca avy
+    (global-set-key (kbd "C-:") 'avy-goto-char))
+#+end_src
+** Show Elisp evaluations conveniently :newpkg:startuppkg:elisp:
+#+begin_src emacs-lisp :tangle init.el
+    (elpaca eros
+      (add-hook 'emacs-lisp-mode-hook 'eros-mode)
+      (add-hook 'lisp-interaction-mode-hook 'eros-mode))
+#+end_src
+** Use Y/n instead of Yes/no :keybinds:
+#+begin_src emacs-lisp :tangle init.el
+  (setq use-short-answers t)
+#+end_src
+** Show pressed keys in minibuffer :keybinds:
+#+begin_src emacs-lisp :tangle init.el
+  (setq echo-keystrokes 0.01)
+#+end_src
+** Highlight line point is in :eyecandy:startuppkg:
+This is because when I have multiple windows I lose track of where the point is
+#+begin_src emacs-lisp :tangle init.el
+  (global-hl-line-mode)
+#+end_src
+
+** Hide mode-line in completion buffer :startuppkg:newpkg:
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca hide-mode-line
+    (add-hook 'completion-list-mode-hook #'hide-mode-line-mode))
+#+end_src
+
+** Hide copyright comments from files :startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (add-to-prog-hooks 'elide-head)
+#+end_src
+
+** Convenient way to "pin" a buffer :newpkg:windows:
+Sometimes Emacs displays a buffer on a windows you didn't want to.
+=dedicated-mode= makes a window buffer to not be overriden by Emacs
+
+#+begin_src emacs-lisp :tangle init.el
+  (elpaca dedicated)
+#+end_src
+* Fixes :fix:
+Things that should be the default in Emacs
+** Remove indentation of tags in org-mode :org:
+#+begin_src emacs-lisp :tangle init.el
+  (setq org-tags-column 0)
+#+end_src
+
+** Make Dired trash files instead of permamently deleting them :dired:
+#+begin_src emacs-lisp :tangle init.el
+  (setq delete-by-moving-to-trash t)
+#+end_src
+
+** Fix Notifications for Windows and Linux
+#+begin_src emacs-lisp :tangle init.el
+  (setq alert-default-style (if windows?
+                                  'toaster
+                                'libnotify))
+#+end_src
+** No annoying bell sound
+#+begin_src emacs-lisp :tangle init.el
+  (setq ring-bell-function 'ignore)
+#+end_src
+** Show directories first in Dired :dired:
+#+begin_src emacs-lisp :tangle init.el
+  (with-eval-after-load 'dired
+    (require 'ls-lisp))
+
+  (setq ls-lisp-dirs-first t)
+  (setq ls-lisp-use-insert-directory-program nil)
+#+end_src
+
+** Resize Emacs windows with mouse :windows:
+#+begin_src emacs-lisp :tangle init.el
+  (defun my/add-divider-to-windows (frame)
+    (when (cadr (get-buffer-window-list))
+      (window-divider-mode)
+      (remove-hook 'window-size-change-functions 'my/add-divider-to-windows)))
+  (add-hook 'window-size-change-functions 'my/add-divider-to-windows)
+#+end_src
+
+** Word wrap when convenient :org:eyecandy:
+#+begin_src emacs-lisp :tangle init.el
+  (add-hook 'org-mode-hook #'visual-line-mode)
+#+end_src
+** Enable drag n drop outwards Dired :dired:
+#+begin_src emacs-lisp :tangle init.el
+  (setq dired-mouse-drag-files 'move)
+#+end_src
+** Hide tab-bar when only one tab is open
+#+begin_src emacs-lisp :tangle init.el
+  (setq tab-bar-show 1)
+#+end_src
+** Display unicode characters in Emacs <= 28 :newpkg:startuppkg:
+#+begin_src emacs-lisp :tangle init.el
+  (when (< emacs-major-version 29)
+    (elpaca unicode-fonts
+      (require 'unicode-fonts)
+      (unicode-fonts-setup)))
+#+end_src
