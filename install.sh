@@ -68,7 +68,7 @@ flush () {
 }
 
 # Packages go here
-pkg stow git emacs # General purpose
+pkg stow git emacs torbrowser-launcher # General purpose
 pkg autoconf texinfo libgtk-3-dev libgif-dev libxpm-dev libgnutls28-dev libncurses-dev libmagickwand-dev libtree-sitter-dev # for compiling Emacs
 flush
 
