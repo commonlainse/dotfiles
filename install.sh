@@ -64,7 +64,7 @@ flush () {
 	fi
     fi
     stage "Upgrading packages"
-    sudo apt upgrade
+    sudo apt upgrade || ( sudo apt-get update; sudo apt upgrade)
 }
 
 # Packages go here
