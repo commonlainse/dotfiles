@@ -111,7 +111,7 @@ if ! which -s keyd; then
 fi
 
 # Joplin
-JOPLIN_INSTALL_DIR="${HOME}/.joplin"
+JOPLIN_INSTALL_DIR=~/.joplin
 JOPLIN_RUN_SCRIPT=false
 
 if [ -f "${JOPLIN_INSTALL_DIR}/VERSION" ]; then
@@ -127,5 +127,7 @@ else
 fi
 
 if [[ "${JOPLIN_RUN_SCRIPT}" == true ]]; then
-    wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash --install-dir "${JOPLIN_INSTALL_DIR}"
+    joplin_script_dir=`${mktemp}`.sh
+    wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh >> "${joplin_script_dir}"
+    bash "${joplin_script_dir}"
 fi
