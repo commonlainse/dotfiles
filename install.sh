@@ -109,3 +109,23 @@ if ! which -s keyd; then
     cd $dotpath
     rm -r -f $keyddir
 fi
+
+# Joplin
+JOPLIN_INSTALL_DIR="${HOME}/.joplin"
+JOPLIN_RUN_SCRIPT=false
+
+if [ -f "${JOPLIN_INSTALL_DIR}/VERSION" ]; then
+    # Stolen from Joplin's script
+    JOPLIN_RELEASE_VERSION=$(wget -qO - "https://api.github.com/repos/laurent22/joplin/releases/latest" | grep -Po '"tag_name": ?"v\K.*?(?=")')
+    if [[ $(< "${JOPLIN_INSTALL_DIR}/VERSION") != "${JOPLIN_RELEASE_VERSION}" ]]; then
+	JOPLIN_RUN_SCRIPT=true
+	stage "Updating Joplin"
+    fi
+else
+    JOPLIN_RUN_SCRIPT=true
+    stage "Installing Joplin"
+fi
+
+if [[ "${JOPLIN_RUN_SCRIPT}" == true ]]; then
+    wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash --install-dir "${JOPLIN_INSTALL_DIR}"
+fi
