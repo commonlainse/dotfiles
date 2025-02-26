@@ -14,6 +14,11 @@ stage () {
   echo -e "\e[32m========== $@ ==========\e[0m"
 }
 
+info () {
+  # https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124?permalink_comment_id=3892823#gistcomment-3892823
+  echo -e "\e[38;5;245m\e[3m: $@\e[0m"
+}
+
 pkgs=()
 pkg () {
     # https://stackoverflow.com/a/23585994
@@ -116,6 +121,7 @@ JOPLIN_RUN_SCRIPT=false
 
 if [ -f "${JOPLIN_INSTALL_DIR}/VERSION" ]; then
     # Stolen from Joplin's script
+    info "Checking if Joplin is up to date"
     JOPLIN_RELEASE_VERSION=$(wget -qO - "https://api.github.com/repos/laurent22/joplin/releases/latest" | grep -Po '"tag_name": ?"v\K.*?(?=")')
     if [[ $(< "${JOPLIN_INSTALL_DIR}/VERSION") != "${JOPLIN_RELEASE_VERSION}" ]]; then
 	JOPLIN_RUN_SCRIPT=true
@@ -134,6 +140,7 @@ fi
 
 # Install Discord and update it when needed
 # https://github.com/slyfox1186/script-repo/blob/main/Bash/Installer%20Scripts/dpkg/discord.sh#L59
+info "Checking if Discord is up to date"
 LATEST_DISCORD_VER=$(curl -s "https://discord.com/api/download?platform=linux&format=tar.gz" | grep -oP 'discord-0.0.\K\d+' | head -n1)
 DISCORD_BIN=/usr/bin/Discord
 DISCORD_VERSION_REG=~/.discordversion
@@ -154,9 +161,11 @@ if [[ $(< $DISCORD_VERSION_REG) != $LATEST_DISCORD_VER ]]; then
 
     cd $dotpath
     if ! [ -f /usr/share/pixmaps/discord.png ]; then
+	info "Installing Discord desktop icon"
 	sudo cp $dotpath/discord.png /usr/share/pixmaps/discord.png
     fi
     if ! [ -f /usr/share/applications/discord.desktop ]; then
+	info "Installing Discord desktop entry"
 	sudo cp $dotpath/discord.desktop /usr/share/applications/discord.desktop
 	update-desktop-database -q
     fi
