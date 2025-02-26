@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Discord
+Comment=Crappy and propietary chat client
+Path=/usr/bin/
+Exec=Discord
+Categories=Network;Chat
+Icon=discord
