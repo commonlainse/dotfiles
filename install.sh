@@ -142,7 +142,6 @@ fi
 # https://github.com/slyfox1186/script-repo/blob/main/Bash/Installer%20Scripts/dpkg/discord.sh#L59
 info "Checking if Discord is up to date"
 LATEST_DISCORD_VER=$(curl -s "https://discord.com/api/download?platform=linux&format=tar.gz" | grep -oP 'discord-0.0.\K\d+' | head -n1)
-DISCORD_BIN=/usr/bin/Discord
 DISCORD_VERSION_REG=~/.discordversion
 
 if ! [ -f $DISCORD_VERSION_REG ]; then
@@ -150,23 +149,21 @@ if ! [ -f $DISCORD_VERSION_REG ]; then
 fi
 
 if [[ $(< $DISCORD_VERSION_REG) != $LATEST_DISCORD_VER ]]; then
-    echo $LATEST_DISCORD_VER > $DISCORD_VERSION_REG
     stage "Installing Discord"
 
-    if [ -f $DISCORD_BIN ]; then
-	sudo rm $DISCORD_BIN
+    if [ -f /opt/Discord ]; then
+	sudo rm -r -f /opt/Discord
     fi
-    
-    sudo wget -o $DISCORD_BIN "https://discordapp.com/api/download?platform=linux&format=tar.gz"
 
+    discord_tar=`${mktemp}`.tar.gz
+    sudo wget -O $discord_tar "https://discordapp.com/api/download?platform=linux&format=tar.gz"
+    sudo tar -xvf $discord_tar -C /opt
+    sudo mkdir -p /usr/share/discord/
+    sudo ln -sf /opt/Discord/Discord /usr/share/discord/Discord
+    sudo ln -sf /opt/Discord/discord.desktop /usr/share/applications/discord.desktop
+    sudo ln -sf /opt/Discord/discord.png /usr/share/pixmaps/discord.png
+    update-desktop-database -q
+
+    echo $LATEST_DISCORD_VER > $DISCORD_VERSION_REG
     cd $dotpath
-    if ! [ -f /usr/share/pixmaps/discord.png ]; then
-	info "Installing Discord desktop icon"
-	sudo cp $dotpath/discord.png /usr/share/pixmaps/discord.png
-    fi
-    if ! [ -f /usr/share/applications/discord.desktop ]; then
-	info "Installing Discord desktop entry"
-	sudo cp $dotpath/discord.desktop /usr/share/applications/discord.desktop
-	update-desktop-database -q
-    fi
 fi
