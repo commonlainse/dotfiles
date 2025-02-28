@@ -73,8 +73,18 @@ flush () {
 }
 
 # Packages go here
-pkg stow git emacs torbrowser-launcher okular lmms # General purpose
-pkg autoconf texinfo libgtk-3-dev libgif-dev libxpm-dev libgnutls28-dev libncurses-dev libmagickwand-dev libtree-sitter-dev # for compiling Emacs
+# general purpose
+pkg stow git emacs torbrowser-launcher okular lmms flameshot
+
+# for compiling Emacs
+pkg autoconf texinfo libgtk-3-dev libgif-dev libxpm-dev libgnutls28-dev libncurses-dev libmagickwand-dev libtree-sitter-dev
+
+# Waydroid
+if ! [ -f /usr/share/keyrings/waydroid.gpg ]; then
+    curl https://repo.waydro.id/ | sudo bash
+fi
+pkg waydroid weston
+
 flush
 
 # Emacs config
