@@ -74,7 +74,7 @@ flush () {
 
 # Packages go here
 # general purpose
-pkg stow git emacs torbrowser-launcher okular lmms flameshot
+pkg stow git emacs torbrowser-launcher okular lmms flameshot lua5.4
 
 # for compiling Emacs
 pkg autoconf texinfo libgtk-3-dev libgif-dev libxpm-dev libgnutls28-dev libncurses-dev libmagickwand-dev libtree-sitter-dev
@@ -176,4 +176,11 @@ if [[ $(< $DISCORD_VERSION_REG) != $LATEST_DISCORD_VER ]]; then
 
     echo $LATEST_DISCORD_VER > $DISCORD_VERSION_REG
     cd $dotpath
+fi
+
+# Install fennel
+if ! which -s fennel; then
+    stage "Installing Fennel"
+    sudo wget https://fennel-lang.org/downloads/fennel-1.5.3 -O /usr/local/bin/fennel
+    sudo chmod +x /usr/local/bin/fennel
 fi
