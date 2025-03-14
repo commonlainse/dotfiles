@@ -437,6 +437,12 @@ the completion framework
     (global-set-key (kbd "M-g i") 'consult-imenu)
     (global-set-key (kbd "M-g o") 'consult-outline))
 #+end_src
+** fixperformance Git client :newpkg:keybinds:
+#+begin_src emacs-lisp
+  (setq magit-define-global-key-bindings 'recommended)
+  (elpaca transient)
+  (elpaca (magit :wait t))
+#+end_src
 
 * Minor :minor:
 
