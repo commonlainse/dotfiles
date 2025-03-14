@@ -91,16 +91,11 @@ flush
 emacsdir=~/.emacs.d
 emacsdot="$dotpath/emacs"
 mkdir -p $emacsdir
-if ! [ -f $emacsdir/init.org ]; then
+if ! [ -f $emacsdir/init.el ]; then
     stage "Adding Emacs config"
 
     # Tangle init.org
     emacs --batch --file $emacsdot/init.org --eval "(progn (require 'ob-tangle) (org-babel-tangle))"
-    
-    # https://www.cyberciti.biz/faq/creating-hard-links-with-ln-command/
-    ln $emacsdot/init.org $emacsdir/init.org
-    ln $emacsdot/init.el $emacsdir/init.el
-    ln $emacsdot/early-init.el $emacsdir/early-init.el
 fi
 
 # Keyd config

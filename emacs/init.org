@@ -1,22 +1,23 @@
 #+title: My Emacs configuration and usage
 #+auto_tangle: t
 #+todo: fixperformance(p) wanted(w) | done(d)
+#+property: header-args :tangle ~/.emacs.d/init.el
 
 This file doesn't just provide an Emacs configuration but also the way I use Emacs.
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq windows? (eql system-type 'windows-nt))
 #+end_src
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun init ()
     "Opens init file."
     (interactive)
-    (find-file "~/.emacs.d/init.org")
+    (find-file "~/Packages/emacs/init.org")
     (message "Opened init file"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun add-to-prog-hooks (fn)
     (add-hook 'prog-mode-hook fn)
     (add-hook 'lisp-mode-hook fn)
@@ -100,24 +101,24 @@ I learned many of the tricks here thanks to [[https://github.com/progfolio/.emac
 ** Disable certain features for faster startup :performance:
 
 *** file-name-handler-alist
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
   (defvar default-file-name-handler-alist file-name-handler-alist)
   (setq file-name-handler-alist nil)
 #+end_src
 
 *** Garbage Collection
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
   (setq gc-cons-threshold (* 50 1000 1000)
         gc-cons-percentage 1)
 #+end_src
 
 *** Initial resizing of window
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
   (setq frame-inhibit-implied-resize t)
 #+end_src
 
 *** Reset them after init.el loads
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
   (defun my/restart-gc ()
     (run-with-idle-timer
      1 nil
@@ -135,12 +136,12 @@ Elpaca is a much better package manager.
 It's async (which means it's faster) and has more functionality (such as =elpaca-try=).
 
 *** Disable Emacs package manager
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
   (setq package-enable-at-startup nil)
 #+END_SRC
 
 *** Install Elpaca :newpkg:fix:startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defvar elpaca-installer-version 0.9)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
@@ -182,7 +183,7 @@ It's async (which means it's faster) and has more functionality (such as =elpaca
 #+end_src
 
 *** Elpaca fix for windows :fix:forwindows:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (when windows?
     (elpaca-no-symlink-mode))
 #+end_src
@@ -194,7 +195,7 @@ It must be disabled on =early-init.el= or otherwise it slows down Emacs' startup
 
 Obtained from [[https://github.com/progfolio/.emacs.d?tab=readme-ov-file#ui]].
 
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
   (push '(tool-bar-lines . 0) default-frame-alist)
   (push '(vertical-scroll-bars) default-frame-alist)
   (push '(menu-bar-lines . 0) default-frame-alist)
@@ -208,7 +209,7 @@ Packages insert configurations and cache stuff everywhere.
 In a way that doesn't clutter the home folder or other unwanted directories.
 Naturally, because of this, =no-littering= has to be one of the first packages to load.
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca no-littering
     (require 'no-littering)
     ;; For backups
@@ -218,7 +219,7 @@ Naturally, because of this, =no-littering= has to be one of the first packages t
 *** Set a place to save results from customize.el
 Depends on =no-littering='s =no-littering-expand-etc-file-name=
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (with-eval-after-load 'no-littering
     (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
     (when (file-exists-p custom-file)
@@ -229,17 +230,17 @@ Depends on =no-littering='s =no-littering-expand-etc-file-name=
 =org-modules= is a list which contains modules that =org= will =require= when it loads.
 That slow downs performance and I don't really need any of the extra functionality that comes by default with =org-modules=.
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq org-modules '())
 #+end_src
 
 ** Use =*scratch*= as startup buffer :minor:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq inhibit-startup-screen t)
 #+end_src
 
 ** Use UTF-8 by default :forwindows:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (set-default-coding-systems 'utf-8-unix)
   (set-language-environment 'utf-8)
   (set-selection-coding-system 'utf-8-unix)
@@ -251,11 +252,11 @@ That slow downs performance and I don't really need any of the extra functionali
 Make Emacs' not resize the frame when I later change the font.
 Speeds up startup.
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq frame-inhibit-implied-resize t)
 #+end_src
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (push '(font . "Noto Mono") default-frame-alist)
   (set-face-font 'default "Noto Mono")
   (set-fontset-font t nil (font-spec :family "Noto Sans"))
@@ -264,18 +265,18 @@ Speeds up startup.
 * Organization and task-management :organization:
 
 ** Pomodoro timer :newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca pomm)
 #+end_src
 
 *** Support for org's clock-in and clock-out
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (add-hook 'pomm-on-status-changed-hook #'pomm--sync-org-clock)
   (add-hook 'pomm-third-time-on-status-changed-hook
             #'pomm-third-time--sync-org-clock)
 #+end_src
 ** Annotate Emacs buffers :newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca annotate)
 #+end_src
 
@@ -285,7 +286,7 @@ Useful as it makes Org's headlines a viable tool for organizing stories.
 
 Taken from [[https://emacs.stackexchange.com/a/17677]].
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca org-contrib
     (with-eval-after-load 'ox
       (require 'ox-extra)
@@ -293,7 +294,7 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
 #+end_src
 
 ** Flashcards for org-mode :org:newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca org-drill)
 #+end_src
 
@@ -302,13 +303,13 @@ Deft in my case is the best note-taker for Emacs because
 - It works well with Syncthing :: it doesn't depend on any databases.
 - Notes can be edited on mobile :: no complicated ID scheme.
   
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca deft
     (global-set-key [f8] 'deft))
 #+end_src
 
 ** fixperformance Organize Emacs' popup windows :windows:newpkg:startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca popper
     (setq popper-reference-buffers
           '("\\*Messages\\*"
@@ -332,12 +333,12 @@ Deft in my case is the best note-taker for Emacs because
 * Familiarity from other editors
 
 ** Normal C-x, C-c and C-v :keybinds:startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (cua-mode)
 #+end_src
 
 ** Normal C-z, C-y :newpkg:keybinds:startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca undo-tree
     (add-to-prog-hooks 'undo-tree-mode)
     (add-hook 'org-mode-hook 'undo-tree-mode))
@@ -356,18 +357,18 @@ Deft in my case is the best note-taker for Emacs because
 #+end_src
 
 ** Shift select on org-mode :keybinds:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq org-support-shift-select 'always)
 #+end_src
 
 ** Vertical cursor bar :minor:eyecandy:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq cursor-type 'bar)
 #+end_src
 
 ** Highlight surrounding parentheses :newpkg:startuppkg:
 I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca highlight-parentheses
     (setq highlight-parentheses-delay 0.01)
     (add-to-prog-hooks 'highlight-parentheses-mode))
@@ -375,7 +376,7 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
 * Eyecandy :eyecandy:
 
 ** Themes :newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca doom-themes)
   (elpaca ef-themes)
   (elpaca flexoki-themes)
@@ -384,7 +385,7 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
 #+end_src
 
 ** Prettify org-mode headings :org:newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca org-bullets		  ; Pretty org!!
     ;; I don't like org-bullets' cycling
     (with-eval-after-load 'org-bullets
@@ -399,7 +400,7 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
 #+end_src
 
 ** Prettify org-mode items, quotes and source blocks
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun my/prettify-symbols-setup ()
     (push '("[ ]" . "") prettify-symbols-alist)
     (push '("[X]" . "") prettify-symbols-alist)
@@ -423,16 +424,16 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
 #+end_src
 
 ** Indent org-mode documents :org:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (add-hook 'org-mode-hook #'org-indent-mode)
 #+end_src
 
 ** Hide markup in org-mode when the point isn't over it                :org:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq org-hide-emphasis-markers t)
 #+end_src
 ** Icons for Dired :dired:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (unless windows?
     (elpaca all-the-icons-dired
       (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)))
@@ -440,7 +441,7 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
 * Major extensions
 
 ** TTS support for Emacs (not Emacspeak) :newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca read-aloud)
 #+end_src
 
@@ -449,33 +450,33 @@ Should be possible considering it uses spd-say (a common interface for various T
 
 ** Lossy completion of buffers, files, commands, etc :newpkg:startuppkg:
 Provide metadata for
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca marginalia
     (marginalia-mode 1))
 #+end_src
 
 the completion framework
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca vertico
     (vertico-mode 1))
 #+end_src
 
 *** Disable case sensitivity
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq completion-ignore-case t)
 #+end_src
 
 *** Loose completion match :newpkg:
 =orderless= will turn =vertico= into an amazing search engine for buffers, commands and basically anything.
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca orderless
     (setq completion-styles '(orderless basic)
           completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
 *** Support for imenu, search and buffers :navigation:newpkg:keybinds:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca consult
     (global-set-key (kbd "C-s") 'consult-line)
     (global-set-key (kbd "C-x b") 'consult-buffer)
@@ -489,11 +490,11 @@ the completion framework
 * Minor :minor:
 
 ** Convenient structural editing in org :org:keybinds:navigation:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq org-insert-heading-respect-content t)
 #+end_src
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (add-hook 'org-mode-hook
             (lambda ()
               (define-key org-mode-map (kbd "C-c C-<return>") 'org-insert-subheading)
@@ -510,11 +511,11 @@ the completion framework
               (define-key org-mode-map (kbd "C-c e") 'org-end-of-item)))
 #+end_src
 ** Configure org-capture :keybinds:org:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (global-set-key (kbd "C-c c") 'org-capture)
 #+end_src
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq org-capture-templates
         '(("i" "An idea left to note or implement" entry
            (file+headline buffer-name "Inbox")
@@ -540,7 +541,7 @@ the completion framework
 Removes redundant entries from the mark ring.
 Taken from here [[https://endlessparentheses.com/faster-pop-to-mark-command.html][faster pop to mark command@endlessparentheses.com]].
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun modi/multi-pop-to-mark (orig-fun &rest args)
     "Call ORIG-FUN until the cursor moves.
   Try the repeated popping up to 10 times."
@@ -553,13 +554,13 @@ Taken from here [[https://endlessparentheses.com/faster-pop-to-mark-command.html
 #+end_src
 
 ** One sentence per line :org:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca electric-ospl
     (add-hook 'org-mode-hook 'electric-ospl-mode))
 #+end_src
 
 ** Navigate different windows conveniently with ace-window :navigation:keybinds:windows:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca ace-window
     (global-set-key (kbd "C-¿") 'ace-window)
 
@@ -581,14 +582,14 @@ Taken from here [[https://endlessparentheses.com/faster-pop-to-mark-command.html
 ** Tangle org-mode files on save :org:
 For a file to be tangled automatically, it must have the keyword =#+auto_tangle: t=
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca org-auto-tangle
     (add-hook 'org-mode-hook 'org-auto-tangle-mode))
 #+end_src
 ** C-c C-e to open a file in an external program :dired:
 Taken from [[http://xahlee.info/emacs/emacs/emacs_dired_open_file_in_ext_apps.html]]
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun xah-open-in-external-app (&optional Fname)
     "Open the current file or dired marked files in external app.
   When called in emacs lisp, if Fname is given, open that.
@@ -636,13 +637,13 @@ Taken from [[http://xahlee.info/emacs/emacs/emacs_dired_open_file_in_ext_apps.ht
 #+end_src
 
 ** Highlight sudden changes in buffer :newpkg:startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca volatile-highlights
     (volatile-highlights-mode))
 #+end_src
 
 ** Add a 'd' key to merge both variants in ediff-merge :ediff:keybinds:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun ediff-copy-both-to-C ()
     (interactive)
     (ediff-copy-diff ediff-current-difference nil 'C nil
@@ -656,48 +657,48 @@ Taken from [[http://xahlee.info/emacs/emacs/emacs_dired_open_file_in_ext_apps.ht
   (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 #+end_src
 ** Stop ediff-merge from creating a new frame :ediff:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 #+end_src
 
 ** Automatically close parentheses, quotes, etc :startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (electric-pair-mode)
 #+end_src
 
 ** Convenient jump to any character visible in screen :newpkg:keybinds:navigation:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca avy
     (global-set-key (kbd "C-:") 'avy-goto-char))
 #+end_src
 ** Show Elisp evaluations conveniently :newpkg:startuppkg:elisp:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
     (elpaca eros
       (add-hook 'emacs-lisp-mode-hook 'eros-mode)
       (add-hook 'lisp-interaction-mode-hook 'eros-mode))
 #+end_src
 ** Use Y/n instead of Yes/no :keybinds:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq use-short-answers t)
 #+end_src
 ** Show pressed keys in minibuffer :keybinds:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq echo-keystrokes 0.01)
 #+end_src
 ** Highlight line point is in :eyecandy:startuppkg:
 This is because when I have multiple windows I lose track of where the point is
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (global-hl-line-mode)
 #+end_src
 
 ** Hide mode-line in completion buffer :startuppkg:newpkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca hide-mode-line
     (add-hook 'completion-list-mode-hook #'hide-mode-line-mode))
 #+end_src
 
 ** Hide copyright comments from files :startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (add-to-prog-hooks 'elide-head)
 #+end_src
 
@@ -705,33 +706,33 @@ This is because when I have multiple windows I lose track of where the point is
 Sometimes Emacs displays a buffer on a windows you didn't want to.
 =dedicated-mode= makes a window buffer to not be overriden by Emacs
 
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (elpaca dedicated)
 #+end_src
 * Fixes :fix:
 Things that should be the default in Emacs
 ** Remove indentation of tags in org-mode :org:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq org-tags-column 0)
 #+end_src
 
 ** Make Dired trash files instead of permamently deleting them :dired:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq delete-by-moving-to-trash t)
 #+end_src
 
 ** Fix Notifications for Windows and Linux
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq alert-default-style (if windows?
                                   'toaster
                                 'libnotify))
 #+end_src
 ** No annoying bell sound
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq ring-bell-function 'ignore)
 #+end_src
 ** Show directories first in Dired :dired:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (with-eval-after-load 'dired
     (require 'ls-lisp))
 
@@ -740,7 +741,7 @@ Things that should be the default in Emacs
 #+end_src
 
 ** Resize Emacs windows with mouse :windows:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (defun my/add-divider-to-windows (frame)
     (when (cadr (get-buffer-window-list))
       (window-divider-mode)
@@ -749,19 +750,19 @@ Things that should be the default in Emacs
 #+end_src
 
 ** Word wrap when convenient :org:eyecandy:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (add-hook 'org-mode-hook #'visual-line-mode)
 #+end_src
 ** Enable drag n drop outwards Dired :dired:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq dired-mouse-drag-files 'move)
 #+end_src
 ** Hide tab-bar when only one tab is open
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (setq tab-bar-show 1)
 #+end_src
 ** Display unicode characters in Emacs <= 28 :newpkg:startuppkg:
-#+begin_src emacs-lisp :tangle init.el
+#+begin_src emacs-lisp
   (when (< emacs-major-version 29)
     (elpaca unicode-fonts
       (require 'unicode-fonts)
