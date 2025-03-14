@@ -353,7 +353,7 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
 
 ** Vertical cursor bar :minor:eyecandy:
 #+begin_src emacs-lisp
-  (setq cursor-type 'bar)
+  (setq-default cursor-type 'bar)
 #+end_src
 
 ** Highlight surrounding parentheses :newpkg:startuppkg:
