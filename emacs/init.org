@@ -298,16 +298,6 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
   (elpaca org-drill)
 #+end_src
 
-** Convenient note-taking and file system with deft :org:newpkg:keybinds:
-Deft in my case is the best note-taker for Emacs because
-- It works well with Syncthing :: it doesn't depend on any databases.
-- Notes can be edited on mobile :: no complicated ID scheme.
-  
-#+begin_src emacs-lisp
-  (elpaca deft
-    (global-set-key [f8] 'deft))
-#+end_src
-
 ** fixperformance Organize Emacs' popup windows :windows:newpkg:startuppkg:
 #+begin_src emacs-lisp
   (elpaca popper
