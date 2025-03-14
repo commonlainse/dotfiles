@@ -383,6 +383,12 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
 #+begin_src emacs-lisp
   (setq org-hide-emphasis-markers t)
 #+end_src
+
+*** Show them when the point is over it :newpkg:
+#+begin_src emacs-lisp
+    (elpaca org-appear
+      (add-hook 'org-mode-hook 'org-appear-mode))
+#+end_src
 ** Icons for Dired :dired:
 #+begin_src emacs-lisp
   (unless windows?
