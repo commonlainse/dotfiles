@@ -384,45 +384,6 @@ I added this because I saw it on Sublime Text and I was sad it wasn't on Emacs
   (elpaca modus-themes)
 #+end_src
 
-** Prettify org-mode headings :org:newpkg:
-#+begin_src emacs-lisp
-  (elpaca org-bullets		  ; Pretty org!!
-    ;; I don't like org-bullets' cycling
-    (with-eval-after-load 'org-bullets
-      (advice-add #'org-bullets-level-char
-		  :override
-		  (lambda (level)
-		    (let ((bullets '("◉" "○" "♦" "♢" "▪" "▫")))
-		      (string-to-char
-		       (nth (1- (min level (length bullets))) bullets))))))
-
-    (add-hook 'org-mode-hook #'org-bullets-mode))
-#+end_src
-
-** Prettify org-mode items, quotes and source blocks
-#+begin_src emacs-lisp
-  (defun my/prettify-symbols-setup ()
-    (push '("[ ]" . "") prettify-symbols-alist)
-    (push '("[X]" . "") prettify-symbols-alist)
-    (push '("[-]" . "" ) prettify-symbols-alist)
-
-    (push '("#+BEGIN_SRC" . ?⮦) prettify-symbols-alist)
-    (push '("#+END_SRC" . ?⮤) prettify-symbols-alist)
-    (push '("#+begin_src" . ?⮦) prettify-symbols-alist)
-    (push '("#+end_src" . ?⮤) prettify-symbols-alist)
-
-    (push '("#+BEGIN_QUOTE" . ?❝) prettify-symbols-alist)
-    (push '("#+END_QUOTE" . ?❞) prettify-symbols-alist)
-    (push '("#+begin_quote" . ?❝) prettify-symbols-alist)
-    (push '("#+end_quote" . ?❞) prettify-symbols-alist)
-
-    (unless windows?
-      (prettify-symbols-mode)))
-
-  (add-hook 'org-mode-hook        #'my/prettify-symbols-setup)
-  (add-hook 'org-agenda-mode-hook #'my/prettify-symbols-setup)
-#+end_src
-
 ** Indent org-mode documents :org:
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook #'org-indent-mode)
