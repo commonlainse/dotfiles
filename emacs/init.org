@@ -670,6 +670,12 @@ Sometimes Emacs displays a buffer on a windows you didn't want to.
 #+begin_src emacs-lisp
   (elpaca dedicated)
 #+end_src
+
+** fixperformance "Autocomplete" key presses :newpkg:keybinds:
+#+begin_src emacs-lisp
+  (elpaca which-key
+    (which-key-mode))
+#+end_src
 * Fixes :fix:
 Things that should be the default in Emacs
 ** Remove indentation of tags in org-mode :org:
