@@ -462,6 +462,7 @@ the completion framework
             (lambda ()
               (define-key org-mode-map (kbd "C-c C-<return>") 'org-insert-subheading)
               (define-key org-mode-map (kbd "C-c h") 'org-toggle-heading)
+              (define-key org-mode-map (kbd "C-c k") 'org-cut-subtree)
 
               (define-key org-mode-map (kbd "C-c C-u")
                           (lambda ()
