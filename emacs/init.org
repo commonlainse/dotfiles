@@ -679,6 +679,17 @@ Sometimes Emacs displays a buffer on a windows you didn't want to.
   (elpaca which-key
     (which-key-mode))
 #+end_src
+** Able to export things from consult/vertico :newpkg:keybinds:navigation:
+#+begin_src emacs-lisp
+  (elpaca embark
+    (global-set-key (kbd "C-.") 'embark-act))
+#+end_src
+
+Make it work with consult
+#+begin_src emacs-lisp
+  (elpaca embark-consult
+    (add-hook 'consult-preview-at-point-mode-hook 'embark-collect-mode))
+#+end_src
 * Fixes :fix:
 Things that should be the default in Emacs
 ** Remove indentation of tags in org-mode :org:
