@@ -257,9 +257,10 @@ Speeds up startup.
 #+end_src
 
 #+begin_src emacs-lisp
-  (push '(font . "Noto Mono") default-frame-alist)
-  (set-face-font 'default "Noto Mono")
-  (set-fontset-font t nil (font-spec :family "Noto Sans"))
+  (push '(font . "Comic Mono") default-frame-alist)
+  (set-face-font 'default "Comic Mono")
+  (set-fontset-font t nil (font-spec :family "Noto Mono") nil 'append)
+  (set-fontset-font t nil (font-spec :family "Noto Sans") nil 'append)
 #+end_src
 
 * Organization and task-management :organization:
