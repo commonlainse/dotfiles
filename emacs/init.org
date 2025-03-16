@@ -299,7 +299,7 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
   (elpaca org-drill)
 #+end_src
 
-** fixperformance Organize Emacs' popup windows :windows:newpkg:startuppkg:
+** Organize Emacs' popup windows :windows:newpkg:startuppkg:
 #+begin_src emacs-lisp
   (elpaca popper
     (setq popper-reference-buffers
@@ -310,15 +310,41 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
             "\\*Backtrace\\*"
             help-mode
             compilation-mode))
+    (autoload 'popper-toggle "popper")
+    (autoload 'popper-cycle "popper")
+    (autoload 'popper-toggle-type "popper")
     (global-set-key (kbd "C-+") 'popper-toggle)  
     (global-set-key (kbd "M-+") 'popper-cycle)
     (global-set-key (kbd "C-M-+") 'popper-toggle-type)
-    (popper-mode +1)
+
+    ;; Load popper when a window matched by `popper-reference-buffers' is made
+    (defun my/is-buffer-popup-p (buffer)
+      (let* ((buffer-name (buffer-name buffer))
+             (mode (with-current-buffer buffer major-mode)))
+        (catch 'match
+          (dolist (ref popper-reference-buffers)
+            (when (cond ((stringp ref)
+                         (string-match-p ref buffer-name))
+                        ((symbolp ref)
+                         (equal ref mode)))
+              (throw 'match t))))))
+
+    (defun my/load-popper-when-needed (frame)
+      (dolist (window (with-selected-frame frame (window-list-1)))
+        (when (my/is-buffer-popup-p (window-buffer window))
+          (popper-mode +1)
+          (remove-hook 'window-buffer-change-functions
+                       'my/load-popper-when-needed)
+          (remove-hook 'window-size-change-functions
+                       'my/load-popper-when-needed))))
+
+    (add-hook 'window-buffer-change-functions 'my/load-popper-when-needed)
+    (add-hook 'window-size-change-functions 'my/load-popper-when-needed)
 
     ;; For echo-area hints
-    ;; Shouldn't be required at startp
-    (require 'popper-echo)
-    (popper-echo-mode +1))
+    (with-eval-after-load 'popper
+      (require 'popper-echo)
+      (popper-echo-mode +1)))
 #+end_src
 
 * Familiarity from other editors
