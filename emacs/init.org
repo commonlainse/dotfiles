@@ -625,10 +625,11 @@ Sometimes Emacs displays a buffer on a windows you didn't want to.
   (elpaca dedicated)
 #+end_src
 
-** fixperformance "Autocomplete" key presses :newpkg:keybinds:
+** "Autocomplete" key presses :newpkg:keybinds:
+=run-with-idle-timer= is used to defer loading this package as late as possible.
 #+begin_src emacs-lisp
   (elpaca which-key
-    (which-key-mode))
+    (run-with-idle-timer 2 nil 'which-key-mode))
 #+end_src
 ** Able to export things from consult/vertico :newpkg:keybinds:navigation:
 #+begin_src emacs-lisp
