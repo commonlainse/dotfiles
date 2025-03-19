@@ -74,7 +74,7 @@ flush () {
 
 # Packages go here
 # general purpose
-pkg stow git emacs torbrowser-launcher okular lmms flameshot lua5.4
+pkg stow git emacs torbrowser-launcher okular lmms flameshot lua5.4 haxe
 
 # for compiling Emacs
 pkg autoconf texinfo libgtk-3-dev libgif-dev libxpm-dev libgnutls28-dev libncurses-dev libmagickwand-dev libtree-sitter-dev
@@ -178,4 +178,11 @@ if ! which -s fennel; then
     stage "Installing Fennel"
     sudo wget https://fennel-lang.org/downloads/fennel-1.5.3 -O /usr/local/bin/fennel
     sudo chmod +x /usr/local/bin/fennel
+fi
+
+# Haxe
+if ! [ -d ~/.cache/haxelib ]; then
+    stage "Configuring Haxelib"
+    mkdir ~/.cache/haxelib
+    haxelib setup ~/.cache/haxelib
 fi
