@@ -730,3 +730,16 @@ Things that should be the default in Emacs
       (require 'unicode-fonts)
       (unicode-fonts-setup)))
 #+end_src
+* Languages
+** Lua :newpkg:
+#+begin_src emacs-lisp
+  (elpaca lua-mode)
+#+end_src
+** Fennel :newpkg:
+#+begin_src emacs-lisp
+  (elpaca fennel-mode)
+#+end_src
+** Haxe :newpkg:
+#+begin_src emacs-lisp
+  (elpaca haxe-mode)
+#+end_src
