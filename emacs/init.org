@@ -308,6 +308,9 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
             "\\*Async Shell Command\\*"
             "\\*Warnings\\*"
             "\\*Backtrace\\*"
+            "magit: Packages"
+            term-mode
+            eshell-mode
             help-mode
             compilation-mode))
     (autoload 'popper-toggle "popper")
