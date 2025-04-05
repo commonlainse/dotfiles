@@ -743,3 +743,7 @@ Things that should be the default in Emacs
 #+begin_src emacs-lisp
   (elpaca haxe-mode)
 #+end_src
+*** Camel case antidot
+#+begin_src emacs-lisp
+  (add-hook 'haxe-mode-hook 'glasses-mode)
+#+end_src
