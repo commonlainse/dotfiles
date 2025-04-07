@@ -671,6 +671,15 @@ Make it work with consult
   (elpaca embark-consult
     (add-hook 'consult-preview-at-point-mode-hook 'embark-collect-mode))
 #+end_src
+
+** =,= as an alias for =C-=, =,,= for =,=
+#+begin_src emacs-lisp
+  (elpaca devil
+    (autoload 'devil "devil" "Read and execute a Devil key sequence." t)
+    (global-set-key (kbd ",") 'devil)
+    (with-eval-after-load 'devil
+      (global-devil-mode)))
+#+end_src
 * Fixes :fix:
 Things that should be the default in Emacs
 ** Remove indentation of tags in org-mode :org:
