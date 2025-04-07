@@ -730,6 +730,11 @@ Things that should be the default in Emacs
       (require 'unicode-fonts)
       (unicode-fonts-setup)))
 #+end_src
+** Context menu when right click
+#+begin_src emacs-lisp
+  ;; already loaded, comes from mouse.el
+  (context-menu-mode)
+#+end_src
 * Languages
 ** Lua :newpkg:
 #+begin_src emacs-lisp
