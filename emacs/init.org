@@ -672,7 +672,7 @@ Make it work with consult
     (add-hook 'consult-preview-at-point-mode-hook 'embark-collect-mode))
 #+end_src
 
-** =,= as an alias for =C-=, =,,= for =,=
+** =,= as an alias for =C-=, =,,= for =,= :newpkg:keybinds:
 #+begin_src emacs-lisp
   (elpaca devil
     (autoload 'devil "devil" "Read and execute a Devil key sequence." t)
