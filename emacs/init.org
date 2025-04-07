@@ -752,3 +752,7 @@ Things that should be the default in Emacs
 #+begin_src emacs-lisp
   (add-hook 'haxe-mode-hook 'glasses-mode)
 #+end_src
+*** Folding
+#+begin_src emacs-lisp
+  (add-hook 'haxe-mode-hook 'hs-minor-mode)
+#+end_src
