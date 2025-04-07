@@ -678,6 +678,7 @@ Make it work with consult
     (autoload 'devil "devil" "Read and execute a Devil key sequence." t)
     (global-set-key (kbd ",") 'devil)
     (with-eval-after-load 'devil
+      (global-set-key (kbd ",") 'self-insert-command)
       (global-devil-mode)))
 #+end_src
 * Fixes :fix:
