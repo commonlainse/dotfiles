@@ -195,3 +195,7 @@ if ! [ -d ~/.cache/haxelib ]; then
     mkdir ~/.cache/haxelib
     haxelib setup ~/.cache/haxelib
 fi
+
+# Install VSCode extensions
+stage "Checking if VSCode is up to date"
+code --install-extension vshaxe.haxe-extension-pack --install-extension vshaxe.terminator --install-extension vshaxe.haxe-checkstyle
