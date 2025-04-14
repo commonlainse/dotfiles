@@ -131,6 +131,12 @@ I learned many of the tricks here thanks to [[https://github.com/progfolio/.emac
     (add-hook 'elpaca-after-init-hook 'my/restart-gc))
 #+end_src
 
+*** Disable site start files
+[[https://stackoverflow.com/a/77270091][Stolen from this generous guy]]
+#+begin_src emacs-lisp :tangle ~/.emacs.d/early-init.el
+  (setq site-run-file nil)
+#+end_src
+
 ** Setup Elpaca. A faster package manager :performance:
 Elpaca is a much better package manager.
 It's async (which means it's faster) and has more functionality (such as =elpaca-try=).
