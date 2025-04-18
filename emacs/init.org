@@ -762,6 +762,7 @@ Things that should be the default in Emacs
 *** Camel case antidot
 #+begin_src emacs-lisp
   (add-hook 'haxe-mode-hook 'glasses-mode)
+  (add-hook 'haxe-mode-hook 'subword-mode)
 #+end_src
 *** Folding
 #+begin_src emacs-lisp
