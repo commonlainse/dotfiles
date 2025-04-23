@@ -6,6 +6,10 @@
 This file doesn't just provide an Emacs configuration but also the way I use Emacs.
 
 #+begin_src emacs-lisp
+  ;; -*- lexical-binding: t; -*-
+#+end_src
+
+#+begin_src emacs-lisp
   (setq windows? (eql system-type 'windows-nt))
 #+end_src
 
