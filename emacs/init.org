@@ -800,3 +800,16 @@ Things that should be the default in Emacs
 #+begin_src emacs-lisp
   (add-treesit-language 'c "https://github.com/tree-sitter/tree-sitter-c" 'c-mode-hook t)
 #+end_src
+** Ruby
+*** Tree sitter
+#+begin_src emacs-lisp
+  (add-treesit-language 'ruby "https://github.com/tree-sitter/tree-sitter-ruby" 'ruby-ts-mode-hook nil)
+  (when-let ((rb (rassoc 'ruby-mode auto-mode-alist)))
+    (when treesit-available
+      (setcdr rb 'ruby-ts-mode)))
+#+end_src
+*** REPL :newpkg:
+#+begin_src emacs-lisp
+  (elpaca inf-ruby
+    (add-hook 'ruby-ts-mode-hook 'inf-ruby-minor-mode))
+#+end_src
