@@ -762,7 +762,7 @@ Things that should be the default in Emacs
     (push (list name source) treesit-language-source-alist)
     (when treesit-available
       (unless (treesit-language-available-p name)
-        (treesit-install-language-grammar language))
+        (treesit-install-language-grammar name))
       (add-hook hook (lambda ()
                        (when manually-create-parser
                          (treesit-parser-create name))
