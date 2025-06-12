@@ -813,3 +813,29 @@ Things that should be the default in Emacs
   (elpaca inf-ruby
     (add-hook 'ruby-ts-mode-hook 'inf-ruby-minor-mode))
 #+end_src
+** Common Lisp :newpkg:
+#+begin_src emacs-lisp
+  (setq inferior-lisp-program (executable-find "sbcl"))
+  (elpaca sly)
+  (elpaca sly-overlay)
+#+end_src
+
+*** Display evaluation results
+#+begin_src emacs-lisp
+  (with-eval-after-load 'sly
+    (require 'sly-overlay)
+
+    (defun my/sly-overlay-eval-last-sexp ()
+      "Evaluate the form at point and overlay the results."
+      (interactive)
+      (let ((result (sly-eval `(slynk:pprint-eval ,(sly-last-expression)))))
+        (sly-overlay--eval-overlay
+         result
+         (save-excursion
+           (end-of-defun)
+           (point)))
+        (message "%s" result)))
+
+    (define-key sly-mode-map (kbd "C-M-x") 'sly-overlay-eval-defun)
+    (define-key sly-mode-map (kbd "C-x C-e") 'my/sly-overlay-eval-last-sexp))
+#+end_src

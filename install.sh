@@ -94,6 +94,9 @@ if ! [ -f /etc/apt/keyrings/microsoft-archive-keyring.gpg ]; then
 fi
 pkg code
 
+# Common Lisp
+pkg sbcl sbcl-source
+
 flush
 
 # Emacs config
