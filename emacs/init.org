@@ -848,3 +848,11 @@ Things that should be the default in Emacs
     (define-key sly-mode-map (kbd "C-M-x") 'sly-overlay-eval-defun)
     (define-key sly-mode-map (kbd "C-x C-e") 'my/sly-overlay-eval-last-sexp))
 #+end_src
+
+*** Fill column
+#+begin_src emacs-lisp
+  (add-hook 'lisp-mode-hook
+            (lambda ()
+              (setq fill-column 80)
+              (display-fill-column-indicator-mode)))
+#+end_src
