@@ -317,7 +317,8 @@ Taken from [[https://emacs.stackexchange.com/a/17677]].
             term-mode
             eshell-mode
             help-mode
-            compilation-mode))
+            compilation-mode
+            sly-mrepl-mode))
     (autoload 'popper-toggle "popper")
     (autoload 'popper-cycle "popper")
     (autoload 'popper-toggle-type "popper")
