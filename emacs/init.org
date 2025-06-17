@@ -687,6 +687,14 @@ Make it work with consult
       (global-set-key (kbd ",") 'self-insert-command)
       (global-devil-mode)))
 #+end_src
+
+** fixperformance Display page breaks :newpkg:eyecandy:
+Obscure ASCII control character that Emacsers found a use for.
+Can be inserted with =C-q C-l= and can be navigated with =C-x [= and =C-x ]=
+#+begin_src emacs-lisp
+  (elpaca page-break-lines
+    (global-page-break-lines-mode))
+#+end_src
 * Fixes :fix:
 Things that should be the default in Emacs
 ** Remove indentation of tags in org-mode :org:
